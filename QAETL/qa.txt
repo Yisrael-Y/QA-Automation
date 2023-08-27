@@ -1,0 +1,31 @@
+QA (Quality Assurance) testing framework for an ETL (Extract, Transform, Load) process that involves data extraction, transformation, and loading into a MySQL database. The script is designed to test various aspects of the ETL process, including data types, null values, foreign key relationships, data integrity, error handling, data transformation logic, cleanup, and other boundary cases.
+
+Here's a breakdown of the key components and functionalities in the script:
+
+Import Statements: The script begins by importing necessary modules like pandas, mysql.connector, subprocess, logging, os, shutil, and time.
+
+Logging Configuration: Logging is set up using the logging module. Log messages are written to a file named 'qa_test_log.log' with a specified format and level.
+
+ETL Script Execution (run_etl_script): This function runs an external ETL script using subprocess.run(). The output (stdout) of the ETL script is captured and logged for debugging purposes.
+
+Data Type Validation (validate_data_types): This function validates data type consistency between columns in the pandas DataFrame and corresponding columns in the MySQL tables.
+
+Null Value Validation (validate_null_values): This function checks for null values in each column of the pandas DataFrame.
+
+Foreign Key Validation (validate_foreign_keys): This function validates foreign key relationships by checking for invalid references in the MySQL database.
+
+Data Integrity Validation (validate_data_integrity): This function checks data integrity by counting null values in specified columns of specified tables.
+
+Error Handling Test (test_error_handling): This function simulates error scenarios like missing CSV files, data insertion errors, and unexpected exceptions.
+
+Data Transformation Logic Test (test_transformation_logic): This function tests data transformation logic by comparing the output of a sample transformation function with expected results.
+
+Data Cleanup Test (test_cleanup): This function simulates data cleanup after the ETL process by truncating or dropping specified MySQL tables.
+
+Boundary Case Test (test_boundary_cases) and Configuration Test (test_configurations): Placeholder functions for testing edge cases and different ETL configurations.
+
+Main Function (main): The main function orchestrates the entire testing process. It clears the log file, runs the initial ETL script, establishes a connection to the MySQL database, performs various tests and validations, and finally closes the database connection.
+
+Script Execution Check (__name__ == "__main__"): The script's main functionality is executed when the script is run directly, not when it's imported as a module.
+
+Logging Shutdown: The logging.shutdown() method is called to properly close the logging process.
