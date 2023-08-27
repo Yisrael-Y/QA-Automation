@@ -1,5 +1,3 @@
-2023-08-22 12:34:43,360 - INFO - Processing CSV file: C:\Users\dadmin\Desktop\ETL\Entities.csv
-2023-08-22 12:34:44,188 - INFO - No items are Reserved Keywords.
-2023-08-22 12:36:09,171 - INFO - Processing CSV file: C:\Users\dadmin\Desktop\ETL\Entities.csv
-2023-08-22 12:36:09,193 - WARNING - Items not in Pascal Case: msDSMachineAccountQuota, , , , , , , , , , 
-2023-08-22 12:36:09,228 - INFO - No items are Reserved Keywords.
+2023-08-27 08:47:09,948 - INFO - Processing CSV file: C:\Users\dadmin\Desktop\ETL\Entities.csv
+2023-08-27 08:47:09,962 - WARNING - Items not in Pascal Case: msDSMachineAccountQuota, param1, param2
+2023-08-27 08:47:09,966 - INFO - No items are Reserved Keywords.

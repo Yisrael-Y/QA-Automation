@@ -27,37 +27,45 @@ error_logger.addHandler(error_handler)
 
 
 
-def run_etl_script(script_path, *args):
+def run_etl_script(script_path, tag, cfg_file, target_directory):
     try:
-        target_directory = r'C:\Users\dadmin\Desktop\ETL'
-        
         # Change the current working directory to the target directory
         os.chdir(target_directory)
+        current_directory = os.getcwd()
+        logging.info("Current Directory: %s", current_directory)
         
-        command = fr'python\python.exe {script_path} {" ".join(args)}'
-        print("Running ETL script with command:")
-        print(command)
+        # Build the command to run the ETL script
+        command = fr'.\python\python.exe .\ETL.py -c .\ETL_cfg.xml'
+        logging.info("Running ETL script with command:\n%s", command)
+        print("Running ETL script with command:\n%s", command)
+
         
         # Use subprocess.PIPE to capture the output
-        result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
-        # Process the output in real-time
-        for line in result.stdout:
-            print(line, end='')  # Print the output line by line
+        # Process the output and error output in real-time
+        while True:
+            output = process.stdout.readline()
+            error = process.stderr.readline()
+            if output == '' and error == '' and process.poll() is not None:
+                break
+            if output:
+                print(output.strip())  # Print the output line
+            if error:
+                logging.error(error.strip())  # Log the error output
         
-        # Process the error output in real-time
-        for line in result.stderr:
-            error_logger.error(line)  # Log the error output
+        process.wait()  # Wait for the subprocess to finish
         
-        result.wait()  # Wait for the subprocess to finish
-        
-        if result.returncode == 0:
+        if process.returncode == 0:
             logging.info("ETL script ran successfully.")
             return True
         else:
-            logging.error(f"ETL script returned an error (Exit Code: {result.returncode}).")
+            logging.error("ETL script returned an error (Exit Code: %d).", process.returncode)
+            return False
+        
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error("An error occurred: %s", e)
+        return False
 
 
 # Validate data types between data frame and MySQL tables
@@ -162,16 +170,23 @@ def build_dataframe_from_csv(csv_file):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("Please add the exact path for the ETL folder - Usage: python testing_qa.py <ETL>")
+        sys.exit(1)
+
+    ETL = sys.argv[1]
+    logging.info(f"Processing ETL folder: {ETL}")
+    
     try:
         # Clear the log files before each run
-        with open('qa_test_log.log', 'a') as log_file:
-            log_file.truncate(0)  # This will truncate the file, effectively clearing its contents
-        with open('error_log.log', 'a') as error_file:
-            error_file.truncate(0)  # This will truncate the file, effectively clearing its contents
+        with open('qa_test_log.log', 'w') as log_file:
+            log_file.write("")  # This will clear the file contents
+        with open('error_log.log', 'w') as error_file:
+            error_file.write("")  # This will clear the file contents
         logging.info("Starting QA tests")
 
         # Run the initial ETL script
-        etl_success = run_etl_script('.\ETL.py', '-c', '.\ETL_cfg.xml')
+        etl_success = run_etl_script('ETL.py', '-c', 'ETL_cfg.xml', ETL)
         if etl_success:
             print("ETL script ran successfully.")
             logging.info("ETL script ran successfully.")
@@ -181,8 +196,7 @@ def main():
             print("Shutting down due to failure. If you want to run the tests without running the etl then please comment out the relevant code block.")
             return  # End the execution if ETL script run fails
 
-
-        # Connect to the MySQL database
+        # MySQL database connection
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -190,36 +204,36 @@ def main():
             database="test"
         )
         cursor = connection.cursor()
-        logging.info("Database connection successfull.")
-        print("Database connection successfull.")
+        logging.info("Database connection successful.")
+        print("Database connection successful.")
 
         csv_file = './Entities.csv'
-        data_frame = build_dataframe_from_csv(csv_file)
+        data_frame = pd.read_csv(csv_file)  # Read CSV and create DataFrame
         entities = pd.read_csv(csv_file)
 
         if data_frame is not None:
-            logging.info(f"Data frame created successfully.")
-            print(f"Data frame created successfully.")
+            logging.info("Data frame created successfully.")
+            print("Data frame created successfully.")
             validate_data_types(cursor, data_frame)
             validate_desired_fields(cursor, data_frame)
             validate_null_values(entities)
 
-
+    except mysql.connector.Error as db_error:
+        logging.error("MySQL connection error: %s", db_error)
     except Exception as e:
         logging.error("An unexpected error occurred: %s", e)
     finally:
         if 'connection' in locals() and connection.is_connected():
             connection.close()
         
-        # Change the current working directory to the target directory
-        target_directory = r'C:\Users\dadmin\Desktop\ETL\QA'
-        os.chdir(target_directory)
+        # Change the current working directory back to the target directory
+        os.chdir(ETL)
 
         # Open log files using the default text editor
-        os.system('start notepad.exe qa_test_log.log')
-        os.system('start notepad.exe error_log.log')
+        # os.system('start notepad.exe qa_test_log.log')
+        # os.system('start notepad.exe error_log.log')
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='qa_test_log.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.info("Starting QA tests")
     main()
-    logging.shutdown()

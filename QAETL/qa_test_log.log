@@ -1,53 +1,33 @@
-2023-08-22 14:24:04,904 - INFO - Starting QA tests
-2023-08-22 14:24:23,121 - ERROR - Traceback (most recent call last):
-
-2023-08-22 14:24:23,121 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 185, in Create_Hash
-
-2023-08-22 14:24:23,121 - ERROR -     valuesList = df[uniquescolumns].astype(str).apply(','.join, axis=1)
-
-2023-08-22 14:24:23,121 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\python\lib\site-packages\pandas\core\frame.py", line 3813, in __getitem__
-
-2023-08-22 14:24:23,121 - ERROR -     indexer = self.columns._get_indexer_strict(key, "columns")[1]
-
-2023-08-22 14:24:23,122 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\python\lib\site-packages\pandas\core\indexes\base.py", line 6070, in _get_indexer_strict
-
-2023-08-22 14:24:23,122 - ERROR -     self._raise_if_missing(keyarr, indexer, axis_name)
-
-2023-08-22 14:24:23,122 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\python\lib\site-packages\pandas\core\indexes\base.py", line 6133, in _raise_if_missing
-
-2023-08-22 14:24:23,122 - ERROR -     raise KeyError(f"{not_found} not in index")
-
-2023-08-22 14:24:23,122 - ERROR - KeyError: "['forestname'] not in index"
-
-2023-08-22 14:24:23,122 - ERROR - 
-
-2023-08-22 14:24:23,122 - ERROR - During handling of the above exception, another exception occurred:
-
-2023-08-22 14:24:23,122 - ERROR - 
-
-2023-08-22 14:24:23,122 - ERROR - Traceback (most recent call last):
-
-2023-08-22 14:24:23,123 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 1079, in <module>
-
-2023-08-22 14:24:23,123 - ERROR -     main()
-
-2023-08-22 14:24:23,123 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 1043, in main
-
-2023-08-22 14:24:23,123 - ERROR -     Part5_Comparing_Columns_In_CSV_File_And_Mysql_Match(existing_files)
-
-2023-08-22 14:24:23,123 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 843, in Part5_Comparing_Columns_In_CSV_File_And_Mysql_Match
-
-2023-08-22 14:24:23,123 - ERROR -     insert_and_edit_mysql_tables(dfList,entity,sourcepath)
-
-2023-08-22 14:24:23,123 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 330, in insert_and_edit_mysql_tables
-
-2023-08-22 14:24:23,123 - ERROR -     csv_df = Create_Hash(csv_df, uniqueDict[entity], pkDict[entity].lower())
-
-2023-08-22 14:24:23,123 - ERROR -   File "C:\Users\dadmin\Desktop\ETL\ETL.py", line 193, in Create_Hash
-
-2023-08-22 14:24:23,124 - ERROR -     PrintAndWrite("Failed in hashing:" + primarykeycolumn + '\n' + e, 1)
-
-2023-08-22 14:24:23,124 - ERROR - TypeError: can only concatenate str (not "KeyError") to str
-
-2023-08-22 14:24:23,124 - ERROR - ETL script returned an error (Exit Code: 1).
-2023-08-22 14:24:23,125 - INFO - ETL script run failed.
+2023-08-27 09:10:24,071 - INFO - Starting QA tests
+2023-08-27 09:10:24,071 - INFO - Current Directory: C:\Users\dadmin\Desktop\ETL
+2023-08-27 09:10:24,072 - INFO - Running ETL script with command:
+.\python\python.exe .\ETL.py -c .\ETL_cfg.xml
+2023-08-27 09:11:03,682 - INFO - ETL script ran successfully.
+2023-08-27 09:11:03,682 - INFO - ETL script ran successfully.
+2023-08-27 09:11:03,942 - INFO - package: mysql.connector.plugins
+2023-08-27 09:11:03,942 - INFO - plugin_name: caching_sha2_password
+2023-08-27 09:11:03,951 - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2023-08-27 09:11:03,952 - INFO - Database connection successful.
+2023-08-27 09:11:03,969 - INFO - Data frame created successfully.
+2023-08-27 09:11:03,977 - ERROR - An unexpected error occurred: 'entity'
+2023-08-27 09:11:03,977 - ERROR - An unexpected error occurred: 'entity'
+2023-08-27 09:11:03,978 - INFO - No null values found in column 'Entity'.
+2023-08-27 09:11:03,978 - INFO - No null values found in column 'Field'.
+2023-08-27 09:11:03,979 - INFO - No null values found in column 'DesiredField'.
+2023-08-27 09:11:03,979 - INFO - No null values found in column 'Data Type'.
+2023-08-27 09:11:03,979 - INFO - No null values found in column 'MySQL Datatype'.
+2023-08-27 09:11:03,980 - ERROR - Null values found in column 'Constrains': Count = 649
+2023-08-27 09:11:03,980 - ERROR - Null values found in column 'Example Value': Count = 408
+2023-08-27 09:11:03,981 - ERROR - Null values found in column 'Unique identifier': Count = 609
+2023-08-27 09:11:03,981 - ERROR - Null values found in column 'Description': Count = 649
+2023-08-27 09:11:03,982 - ERROR - Null values found in column 'SourcePath': Count = 391
+2023-08-27 09:11:03,982 - ERROR - Null values found in column 'Source (Raw input)': Count = 286
+2023-08-27 09:11:03,983 - ERROR - Null values found in column 'Primary Key': Count = 646
+2023-08-27 09:11:03,983 - ERROR - Null values found in column 'ForeignKey ID': Count = 640
+2023-08-27 09:11:03,983 - ERROR - Null values found in column 'Parent (Describe Hirercies)': Count = 689
+2023-08-27 09:11:03,984 - ERROR - Null values found in column 'Comments': Count = 688
+2023-08-27 09:11:03,984 - ERROR - Null values found in column 'DefaultView': Count = 601
+2023-08-27 09:11:03,985 - ERROR - Null values found in column 'Delimiter': Count = 687
+2023-08-27 09:11:03,985 - ERROR - Null values found in column 'ComaprisionIgnoredColumns': Count = 678
+2023-08-27 09:11:03,985 - ERROR - Null values found in column 'DependencyTable': Count = 686
+2023-08-27 09:11:03,985 - INFO - Null value validation completed.
