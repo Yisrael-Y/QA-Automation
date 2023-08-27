@@ -3,6 +3,8 @@ import email
 import requests
 import time
 from bs4 import BeautifulSoup
+import logging
+
 
 def receive_and_respond():
     print("Initiating receive and respond")
