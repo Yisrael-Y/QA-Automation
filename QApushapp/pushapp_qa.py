@@ -10,8 +10,7 @@ import logging
 
 # Import the custom email handling function
 from email_auto import receive_and_respond
-
-
+from test_cases import generate_test_cases
 
 # Default values for email addresses, phone IDs, and app password
 email_addresses = "10rootqa@gmail.com"
@@ -19,18 +18,13 @@ phone_ids = "x2UpOhMt7LMpewqFQfh6P8 phoneID2 phoneID3"
 app_password = ""
 port = 1234
 
-# Paths to private key and log files
-relative_private_key_path = "./QA-privateKey.pem"
-absolute_private_key_path = os.path.abspath(relative_private_key_path)
-relative_path = "./QA-privateKey.pem"
-absolute_path = os.path.abspath(relative_path)
-relative_logfile_path = "./logfile.txt"
-absolute_logfile_path = os.path.abspath(relative_logfile_path)
-
 # Function to run a test case
 def run_test(test_case):
     print(f"Running Test: {test_case}")
     logging.info(f"Running Test: {test_case}")
+    os.chdir(absolute_path_app)
+    current_directory = os.getcwd()
+    print("Current Working Directory:", current_directory)    
     cmd = f"push.exe {test_case}"
     
     try:
@@ -102,21 +96,33 @@ def log_variables_and_paths(email_addresses, phone_ids, app_password, port, priv
         f"Private Key Path: {private_key_path}\n"
         f"Logfile Path: {logfile_path}\n"
     )
-    with open(absolute_logfile_path, "a") as logfile:
+    with open(logfile_path, "a") as logfile:
         logfile.write("="*40 + "\n")
         logfile.write(header)
         logfile.write("="*40 + "\n\n")
 
 # Function to prompt the user if to run a test case or not
-def prompt_user():
+def prompt_user_all_one():
     while True:
+        all_one = input("Would you like to run all tests or run test by test? (all/one):").lower()
+        if all_one == "all":
+            return "all"
+        elif all_one == "one":
+            return "one"
+        else:
+            print("Please enter 'all' or 'one'.")
+
+# Function to prompt the user if to run a test case or not
+def prompt_user_case():
+    while True:   
         user_input = input("Do you want to run this test case? (yes/no): ").lower()
         if user_input == "yes":
-            return True
+            return "yes"
         elif user_input == "no":
-            return False
+            return "no"
         else:
             print("Please enter 'yes' or 'no'.")
+
 
 # Function to get user input for variables
 def get_user_input(prompt, default_value):
@@ -126,9 +132,29 @@ def get_user_input(prompt, default_value):
         return user_input
     return default_value
 
+# Begin multi threading
+def start_threads(test_case):
+    # Create and start threads for each test case and receive_and_respond
+    test_threads = []
+    test_thread = threading.Thread(target=run_test, args=(test_case,))
+    test_thread.start()
+
+    receive_thread = threading.Thread(target=receive_and_respond)
+    test_threads.append(test_thread)
+    receive_thread.start()
+
+
+    # Wait for the test thread to finish before proceeding to the next iteration
+    for test_thread in test_threads:
+        test_thread.join()
+    receive_thread.join()
+    
+    # Clear the list of test threads
+    test_threads.clear() 
+
 # Main function to run the test cases
 def main():
-    global email_addresses, phone_ids, app_password, port  # Add other variables as well
+    global email_addresses, phone_ids, app_password, port, absolute_private_key_path, absolute_logfile_path, absolute_logfile_path, absolute_path_app
 
     # Get user input for variables
     email_addresses = get_user_input("Enter email addresses (If more than one please have them comma-separated)", email_addresses)
@@ -137,19 +163,20 @@ def main():
     port = int(get_user_input("Enter port number", port))
 
     # Get user input for paths, with defaults as fallback
-    relative_private_key_path = get_user_input("Enter private key path", "./QA-privateKey.pem")
-    absolute_private_key_path = os.path.abspath(relative_private_key_path)
-    relative_logfile_path = get_user_input("Enter logfile path", "./log_file.")
-    absolute_logfile_path = os.path.abspath(relative_logfile_path)
+    absolute_path_app = get_user_input("Enter path to push.exe app directory", r"C:\Users\yisra\Desktop\pushapp")
+    absolute_private_key_path = get_user_input("Enter private key path", r"C:\Users\yisra\Desktop\pushapp\QA-privateKey.pem")
+    absolute_logfile_path = get_user_input("Enter logfile path", r"C:\Users\yisra\Desktop\pushapp\log_file.log")
+
+    # Define log file name
+    log_file = "log_file.log"
 
     # Configure logging to write to an external log file
-    log_file = "log_file.log"
-    # Define log file name and formatlog_file = "log_file.log"
     logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s - %(message)s', filename=log_file)
 
     # Clear the log file before starting
-    with open(log_file, "w") as logfile:
+    with open(absolute_logfile_path, "w") as logfile:
         logfile.truncate(0)
+
 
     # Log variables and paths
     log_variables_and_paths(email_addresses, phone_ids, app_password, port, absolute_private_key_path, absolute_logfile_path)
@@ -164,75 +191,24 @@ def main():
     email_list = email_addresses.split()
     first_email = email_list[0]
     additional_emails = " ".join(email_list[1:])
-    
-    test_cases = [
-        # Test case: Sending an email notification
-        f"-e {first_email} -d \"Test Email Notification\" -t 60 -k \"{absolute_private_key_path}\" -z {port} -i private",
 
-        # Test case: Sending an email notification to multiple recipients
-        f"-e {first_email} {additional_emails} -d \"Test Email Notification\" -t 60 -k \"{absolute_private_key_path}\" -z {port} -i private",
+    test_cases = generate_test_cases(first_email, additional_emails, first_phone_id, additional_phone_ids, absolute_private_key_path, absolute_logfile_path, port)
 
-        # Test case: Sending a push notification to a single phone ID
-        f"-p {first_phone_id} -d \"Test Push Notification\" -t 60 -k \"{absolute_private_key_path}\" -z 1234 -i private",
-
-        # Test case: Sending a push notification to multiple phone IDs
-        f"-p {first_phone_id} {additional_phone_ids} -d \"Test Push Notification\" -t 60 -k \"{absolute_private_key_path}\" -z {port} -i private",
-
-        # Test case: Sending a location-based notification
-        f"-p {first_phone_id} -d \"Test Location-based Notification\" -t 60 -k \"{absolute_private_key_path}\" -w.lat 11 -w.lon 16 -z {port} -i private",
-
-        # Test case: Sending a notification with logging
-        f"-p {first_phone_id} -d \"Test Logging\" -t 60 -k \"{absolute_private_key_path}\" --LOG -f \"{absolute_logfile_path}\" -z {port} -i private",
-
-        # Test case: Sending approval notifications to multiple phone IDs
-        f"-p {first_phone_id} {additional_phone_ids} -d \"Test Approvals\" -t 60 -k \"{absolute_private_key_path}\" -o.digits 5 -o.algorithm SHA-256 -m 2 -z {port} -i private",
-
-        # Test case: Sending mixed email and push notifications
-        f"-p {first_phone_id} -e {first_email} -d \"Test Mixed Notifications\" -t 60 -k \"{absolute_private_key_path}\" -z {port} -i private",
-
-        # Test case: Sending a TOTP (Time-based One-Time Password) notification
-        f"-p {first_phone_id} -e {first_email} -d \"Test TOTP\" -t 60 -k \"{absolute_private_key_path}\" --TOTP -o.digits 6 -o.algorithm SHA-512 -o.secret TOTPSecret123 -z {port} -i private",
-
-        # Test case: Sending a notification with a config file
-        f"-p {first_phone_id} -e {first_email} -d \"Test Config File\" -t 60 -b -k \"{absolute_private_key_path}\"",
-
-        # Test case: Sending a notification with a config file and specific use
-        f"-p {first_phone_id} -e {first_email} -d \"Test Config File Use\" -t 60 -c {absolute_path} -k \"{absolute_private_key_path}\" -z {port} -i private",
-
-        # Test case: Sending an email-only notification
-        f"-p {first_phone_id} -e {first_email} -d \"Test Email Only\" -t 60 -k \"{absolute_private_key_path}\" --emailhost Gmail -s {first_email} -a {app_password} -z {port} -i private",
-
-        # Test case: Testing background execution
-        f"-b -k \"{absolute_private_key_path}\"",
-
-        # ... (add more test cases here)
-    ]
-
-    # Create and start threads for each test case and receive_and_respond
-    test_threads = []
-
-    for test_case in test_cases:
-        print(f"Test Case: {test_case}")
-        logging.info(f"Test Case: {test_case}")
-        
-        if prompt_user():
-            receive_thread = threading.Thread(target=receive_and_respond)
-            receive_thread.start()
-
-            test_thread = threading.Thread(target=run_test, args=(test_case,))
-            test_threads.append(test_thread)
-            test_thread.start()
-
-            # Wait for the test thread to finish before proceeding to the next iteration
-            for test_thread in test_threads:
-                test_thread.join()
-            receive_thread.join()
-            
-            # Clear the list of test threads
-            test_threads.clear()
-        else:
-            print("Skipping this test case.")
-            logging.info("Skipping this test case.")
+    promt_all_one_response = prompt_user_all_one()
+    if promt_all_one_response == "all":
+        for test_case in test_cases:
+            case = test_case["case"]
+            start_threads(case)
+    elif promt_all_one_response == "one":
+        for test_case in test_cases:
+            print(f"Test Case: {test_case}")
+            logging.info(f"Test Case: {test_case}")
+            promt_response = prompt_user_case()
+            if promt_response == "yes":
+                start_threads()
+            else:
+                print("Skipping this test case.")
+                logging.info("Skipping this test case.")
 
     print("All threads have finished.")
     logging.info("All threads have finished.")
