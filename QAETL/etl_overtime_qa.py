@@ -13,7 +13,9 @@ logging.basicConfig(filename='script_log.log', level=logging.INFO, format='%(asc
 # Step 1: Run the initial ETL process 
 def run_etl_script(script_path, *args):
     try:
-        command = ['..\\python\\python.exe', script_path, *args]
+        new_directory = r'C:\Users\dadmin\Desktop\ETL'
+        os.chdir(new_directory)
+        command = ['.\\python\\python.exe', script_path, *args]
         
         # Use subprocess.PIPE to capture the output
         result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -43,9 +45,9 @@ def count_rows_in_all_tables(unique_table_names, cursor):
     results_log = []   # List to store log messages
 
     for table in unique_table_names:
-        if table == "MSRC":
-            print(f"Skipping table: {table}")
-            continue
+        # if table == "MSRC":
+        #     print(f"Skipping table: {table}")
+        #     continue
 
         try:
             # Count rows in the current table
@@ -77,7 +79,9 @@ def count_rows_in_table(cursor, table):
 # Step 4: Move files from source folder to destination folder for the second run
 def move_files_for_second_run():
     try:
-        source_folder = './CSV-Files 23-07-25'
+        current_directory = os.getcwd()
+        print("Current Directory: %s", current_directory)
+        source_folder = './CSV-Files 23-08-22'
         destination_folder = './CSV-Files'
         
         files_to_move = os.listdir(source_folder)
@@ -139,7 +143,7 @@ def compare_records(cursor, changed_tables):
 def main():
     try:
         # Clear the log file before each run
-        with open('script_log.log', 'w') as log_file:
+        with open('etl_overtime-log.log', 'w') as log_file:
             log_file.write('')  # This will truncate the file, effectively clearing its contents
 
         # Step 1: Run the initial ETL script
